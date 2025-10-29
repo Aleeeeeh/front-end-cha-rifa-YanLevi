@@ -1,11 +1,10 @@
 import { Card, CardMedia, CardContent, Typography, Box, Button, Stack, Tooltip } from "@mui/material";
 import CasinoIcon from "@mui/icons-material/Casino";
 
-export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
+export default function TicketCard({ image, onDraw, rolling, balls = [], onBallClick }) {
     return (
         <Card sx={{ width: { xs: "100%", md: "40%" }, borderRadius: 3, boxShadow: 6, overflow: "hidden" }}>
             <Box sx={{ position: "relative" }}>
-                {/* Imagem */}
                 <CardMedia
                     component="img"
                     image={image}
@@ -18,7 +17,7 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                     }}
                 />
 
-                {/* Bolinhas dinâmicas */}
+                {/* Bolinhas */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -26,17 +25,16 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         display: "grid",
-                        gridTemplateColumns: "repeat(5, auto)",  // Altere para 5 por linha
+                        gridTemplateColumns: "repeat(5, auto)",
                         justifyContent: "center",
                         alignContent: "center",
                         gap: "6px",
-                        pointerEvents: "none",
                     }}
                 >
-                    {balls.map((ball, index) => (
+                    {balls.map((ball) => (
                         <Tooltip
-                            key={index}
-                            title={ball.name || "Participante desconhecido"}
+                            key={ball.id}
+                            title={ball.participante?.nome || "Número disponível"}
                             placement="top"
                             arrow
                             componentsProps={{
@@ -55,30 +53,27 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                                     width: 33,
                                     height: 33,
                                     borderRadius: "50%",
-                                    bgcolor: ball.status === "ok" ? "#4CAF50" : "#E57373",
+                                    bgcolor: ball.foiEscolhido ? "#E57373" : "#4CAF50",
                                     boxShadow: 2,
-                                    pointerEvents: "auto",
                                     transition: "transform 0.2s ease",
                                     cursor: "pointer",
-                                    display: "flex",           // <-- permite centralizar o texto
+                                    display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    fontSize: "0.75rem",       // <-- tamanho do número
+                                    fontSize: "0.75rem",
                                     fontWeight: "bold",
                                     color: "white",
-                                    "&:hover": {
-                                        transform: "scale(1.2)",
-                                    },
+                                    "&:hover": { transform: "scale(1.2)" },
                                 }}
+                                onClick={() => onBallClick(ball.numero)}
                             >
-                                {ball.numero ?? ball.id} {/* Mostra o número (ou id como fallback) */}
+                                {ball.numero}
                             </Box>
                         </Tooltip>
                     ))}
                 </Box>
             </Box>
 
-            {/* Conteúdo inferior */}
             <CardContent sx={{ background: "linear-gradient(180deg,#fff, #FEF8EE)" }}>
                 <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center">
                     <Typography variant="body2" color="text.secondary">

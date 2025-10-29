@@ -1,18 +1,41 @@
 import { useState, useEffect, useRef } from "react";
-import { Container, Stack, Box } from "@mui/material";
+import { Container, Stack, Box, Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemText, CircularProgress, Typography } from "@mui/material";
 import confetti from "canvas-confetti";
 import TicketCard from "../components/TicketCard";
 import WinnerCard from "../components/WinnerCard";
 import safariImage from "../assets/imagem-safari.jpg";
-import clickSound from "../assets/sounds/roleta-normal.mp3"
+import clickSound from "../assets/sounds/roleta-normal.mp3";
 
 export default function Home() {
     const [winner, setWinner] = useState(null);
     const [rolling, setRolling] = useState(false);
     const [displayNumber, setDisplayNumber] = useState(0);
+    const [balls, setBalls] = useState([]);
+    const [participants, setParticipants] = useState([]);
+    const [selectedNumber, setSelectedNumber] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [loadingParticipants, setLoadingParticipants] = useState(false);
     const confettiRef = useRef(null);
     const clickAudio = useRef(new Audio(clickSound));
 
+    // Função para buscar bolas
+    const fetchBalls = async () => {
+        try {
+            const response = await fetch("https://localhost:7014/chaRifa/sorteio");
+            if (!response.ok) throw new Error("Erro ao buscar dados da rifa");
+            const data = await response.json();
+            setBalls(data);
+        } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+        }
+    };
+
+    // Busca inicial
+    useEffect(() => {
+        fetchBalls();
+    }, []);
+
+    // Canvas de confete
     useEffect(() => {
         const canvas = document.createElement("canvas");
         canvas.style.position = "fixed";
@@ -37,7 +60,7 @@ export default function Home() {
         setRolling(true);
         setWinner(null);
 
-        const target = Math.floor(Math.random() * 51);
+        const target = Math.floor(Math.random() * balls.length) + 1;
         const duration = 10000;
         const start = Date.now();
 
@@ -55,65 +78,61 @@ export default function Home() {
         requestAnimationFrame(step);
     };
 
-    const [balls] = useState([
-        { id: 1, name: "Alefe", status: "ok" },
-        { id: 2, name: "Thaylane", status: "ok" },
-        { id: 3, name: "Ayron", status: "error" },
-        { id: 4, name: "Yan", status: "ok" },
-        { id: 5, status: "error" },
-        { id: 6, status: "ok" },
-        { id: 7, status: "error" },
-        { id: 8, status: "ok" },
-        { id: 9, status: "ok" },
-        { id: 10, status: "error" },
-        { id: 11, status: "ok" },
-        { id: 12, status: "error" },
-        { id: 13, status: "ok" },
-        { id: 14, status: "ok" },
-        { id: 15, status: "error" },
-        { id: 16, status: "ok" },
-        { id: 17, status: "error" },
-        { id: 18, status: "ok" },
-        { id: 19, status: "ok" },
-        { id: 20, status: "error" },
-        { id: 21, status: "ok" },
-        { id: 22, status: "ok" },
-        { id: 23, status: "error" },
-        { id: 24, status: "ok" },
-        { id: 25, status: "ok" },
-        { id: 26, status: "error" },
-        { id: 27, status: "ok" },
-        { id: 28, status: "ok" },
-        { id: 29, status: "error" },
-        { id: 30, status: "ok" },
-        { id: 31, status: "ok" },
-        { id: 32, status: "error" },
-        { id: 33, status: "ok" },
-        { id: 34, status: "ok" },
-        { id: 35, status: "error" },
-        { id: 36, status: "ok" },
-        { id: 37, status: "ok" },
-        { id: 38, status: "error" },
-        { id: 39, status: "ok" },
-        { id: 40, status: "ok" },
-        { id: 41, status: "error" },
-        { id: 42, status: "ok" },
-        { id: 43, status: "ok" },
-        { id: 44, status: "error" },
-        { id: 45, status: "ok" },
-        { id: 46, status: "ok" },
-        { id: 47, status: "error" },
-        { id: 48, status: "ok" },
-        { id: 49, status: "ok" },
-        { id: 50, status: "error" },
-    ]);
+    // ------------------------------
+    // Clique em uma bolinha
+    // ------------------------------
+    const handleBallClick = async (numero) => {
+        setSelectedNumber(numero);
+        setOpenModal(true);
+        setLoadingParticipants(true);
+        try {
+            const res = await fetch("https://localhost:7014/chaRifa/participante");
+            const data = await res.json();
+            setParticipants(data);
+        } catch (err) {
+            console.error("Erro ao buscar participantes:", err);
+        } finally {
+            setLoadingParticipants(false);
+        }
+    };
 
+    // ------------------------------
+    // Escolher participante
+    // ------------------------------
+    const handleSelectParticipant = async (participanteId) => {
+        if (!selectedNumber) return;
+        try {
+            const res = await fetch("https://localhost:7014/chaRifa/sorteio", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ParticipanteId: participanteId,
+                    Numero: selectedNumber
+                }),
+            });
+
+            if (!res.ok) throw new Error("Erro ao atualizar sorteio");
+
+            // Fecha modal e atualiza lista
+            setOpenModal(false);
+            setSelectedNumber(null);
+            await fetchBalls();
+        } catch (error) {
+            console.error("Erro ao atualizar sorteio:", error);
+        }
+    };
 
     return (
         <Box sx={{ minHeight: "100vh", bgcolor: "#FFF8F0" }}>
             <Container maxWidth="lg" sx={{ py: 6 }}>
                 <Stack direction={{ xs: "column", md: "row" }} spacing={4} alignItems="center" justifyContent="center">
-                    <TicketCard image={safariImage} onDraw={handleDraw} rolling={rolling} balls={balls} />
+                    <TicketCard
+                        image={safariImage}
+                        onDraw={handleDraw}
+                        rolling={rolling}
+                        balls={balls}
+                        onBallClick={handleBallClick} // <<< novo evento
+                    />
                     <Box sx={{ width: { xs: "100%", md: "38%" } }}>
                         <WinnerCard
                             displayNumber={displayNumber}
@@ -125,6 +144,30 @@ export default function Home() {
                     </Box>
                 </Stack>
             </Container>
+
+            {/* Modal de seleção de participante */}
+            <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Selecione um participante</DialogTitle>
+                <DialogContent>
+                    {loadingParticipants ? (
+                        <Box display="flex" justifyContent="center" py={3}>
+                            <CircularProgress />
+                        </Box>
+                    ) : participants.length === 0 ? (
+                        <Typography align="center" color="text.secondary" py={2}>
+                            Nenhum participante encontrado
+                        </Typography>
+                    ) : (
+                        <List>
+                            {participants.map((p) => (
+                                <ListItemButton key={p.id} onClick={() => handleSelectParticipant(p.id)}>
+                                    <ListItemText primary={p.nome} secondary={`ID: ${p.id}`} />
+                                </ListItemButton>
+                            ))}
+                        </List>
+                    )}
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 }

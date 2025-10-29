@@ -66,16 +66,16 @@ export default function Participants() {
             return new Intl.DateTimeFormat("pt-BR", {
                 dateStyle: "short",
                 timeStyle: "short",
-            }).format(new Date(isoString))
-                .replace(',', ' às '); // substitui o espaço por " às "
+            })
+                .format(new Date(isoString))
+                .replace(",", " às "); // substitui a vírgula por " às "
         } catch {
             return isoString;
         }
     };
 
-
     return (
-        <Container sx={{ pt: 12, pb: 6, minHeight: "100vh" }}>
+        <Container sx={{ pt: 12, pb: 12, minHeight: "100vh" }}>
             <Typography
                 variant="h4"
                 sx={{ mb: 4, fontFamily: "Georgia, serif", textAlign: "center" }}
@@ -84,7 +84,7 @@ export default function Participants() {
             </Typography>
 
             {/* 🔹 Formulário de cadastro */}
-            <Paper sx={{ p: 3, mb: 5, maxWidth: 500, mx: "auto" }} elevation={4}>
+            <Paper sx={{ p: 3, mb: 5, maxWidth: 500, mx: "auto" }} elevation={10}>
                 <form onSubmit={handleAddParticipant}>
                     <Stack spacing={2}>
                         <TextField
@@ -111,11 +111,7 @@ export default function Participants() {
             </Paper>
 
             {/* 🔹 Lista de participantes */}
-            <Box>
-                <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                    Lista de participantes cadastrados
-                </Typography>
-
+            <Box sx={{ mb: 6, display: "flex", justifyContent: "center" }}>
                 {loadingList ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
                         <CircularProgress />
@@ -129,7 +125,7 @@ export default function Participants() {
                         component={Paper}
                         sx={{
                             maxWidth: 450,
-                            mx: "auto",
+                            width: "100%",
                             boxShadow: 4,
                             borderRadius: 3,
                             maxHeight: "60vh",
@@ -140,9 +136,7 @@ export default function Participants() {
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: "#A6D29A" }}>
                                     <TableCell sx={{ fontWeight: "bold" }}>Nome</TableCell>
-                                    <TableCell sx={{ fontWeight: "bold" }}>
-                                        Data de Cadastro
-                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: "bold" }}>Data de Cadastro</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -150,14 +144,11 @@ export default function Participants() {
                                     <TableRow
                                         key={p.id || index}
                                         sx={{
-                                            backgroundColor:
-                                                index % 2 === 0 ? "#F9FAF6" : "#F2F8F2",
+                                            backgroundColor: index % 2 === 0 ? "#F9FAF6" : "#F2F8F2",
                                         }}
                                     >
                                         <TableCell sx={{ fontWeight: 500 }}>{p.nome}</TableCell>
-                                        <TableCell>
-                                            {formatDateTime(p.dataHoraCadastro)}
-                                        </TableCell>
+                                        <TableCell>{formatDateTime(p.dataHoraCadastro)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
