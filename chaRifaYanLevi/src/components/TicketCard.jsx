@@ -52,7 +52,7 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                         >
                             <Box
                                 sx={{
-                                    width: 33, // tamanho da bolinha
+                                    width: 33,
                                     height: 33,
                                     borderRadius: "50%",
                                     bgcolor: ball.status === "ok" ? "#4CAF50" : "#E57373",
@@ -60,11 +60,19 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                                     pointerEvents: "auto",
                                     transition: "transform 0.2s ease",
                                     cursor: "pointer",
+                                    display: "flex",           // <-- permite centralizar o texto
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "0.75rem",       // <-- tamanho do número
+                                    fontWeight: "bold",
+                                    color: "white",
                                     "&:hover": {
                                         transform: "scale(1.2)",
                                     },
                                 }}
-                            />
+                            >
+                                {ball.numero ?? ball.id} {/* Mostra o número (ou id como fallback) */}
+                            </Box>
                         </Tooltip>
                     ))}
                 </Box>
@@ -90,7 +98,7 @@ export default function TicketCard({ image, onDraw, rolling, balls = [] }) {
                             background: "linear-gradient(90deg,#7DA17F,#A6D29A)",
                         }}
                     >
-                        Sortear 0–50
+                        Sortear
                     </Button>
                 </Stack>
             </CardContent>

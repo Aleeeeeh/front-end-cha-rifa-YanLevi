@@ -3,14 +3,10 @@ import { Container, Stack, Box } from "@mui/material";
 import confetti from "canvas-confetti";
 import TicketCard from "../components/TicketCard";
 import WinnerCard from "../components/WinnerCard";
-import ParticipantDrawer from "../components/ParticipantDrawer";
 import safariImage from "../assets/imagem-safari.jpg";
 import clickSound from "../assets/sounds/roleta-normal.mp3"
 
 export default function Home() {
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [participants, setParticipants] = useState(["Ana", "Lucas", "Mariana", "Pedro"]);
-    const [newParticipant, setNewParticipant] = useState("");
     const [winner, setWinner] = useState(null);
     const [rolling, setRolling] = useState(false);
     const [displayNumber, setDisplayNumber] = useState(0);
@@ -33,12 +29,6 @@ export default function Home() {
     const launchConfetti = () => {
         const myConfetti = confetti.create(confettiRef.current, { resize: true });
         myConfetti({ particleCount: 250, spread: 160, origin: { y: 0.35 } });
-    };
-
-    const handleAddParticipant = () => {
-        if (!newParticipant.trim()) return;
-        setParticipants((prev) => [...prev, newParticipant.trim()]);
-        setNewParticipant("");
     };
 
     const handleDraw = () => {
@@ -135,15 +125,6 @@ export default function Home() {
                     </Box>
                 </Stack>
             </Container>
-
-            <ParticipantDrawer
-                open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
-                participants={participants}
-                newParticipant={newParticipant}
-                setNewParticipant={setNewParticipant}
-                addParticipant={handleAddParticipant}
-            />
         </Box>
     );
 }
