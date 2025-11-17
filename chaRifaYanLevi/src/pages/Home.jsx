@@ -4,7 +4,6 @@ import confetti from "canvas-confetti";
 import TicketCard from "../components/TicketCard";
 import WinnerCard from "../components/WinnerCard";
 import safariImage from "../assets/imagem-safari.jpg";
-import clickSound from "../assets/sounds/roleta-normal.mp3";
 
 export default function Home() {
     const [winner, setWinner] = useState(null);
@@ -16,7 +15,6 @@ export default function Home() {
     const [openModal, setOpenModal] = useState(false);
     const [loadingParticipants, setLoadingParticipants] = useState(false);
     const confettiRef = useRef(null);
-    const clickAudio = useRef(new Audio(clickSound));
 
     // Função para buscar bolas
     const fetchBalls = async () => {
@@ -56,27 +54,31 @@ export default function Home() {
 
     const handleDraw = () => {
         if (rolling) return;
-        clickAudio.current.play();
+
         setRolling(true);
         setWinner(null);
 
-        const target = Math.floor(Math.random() * balls.length) + 1;
-        const duration = 10000;
-        const start = Date.now();
+        let counter = 0;
+        const maxRolls = 60; // quantidade de números que passam (aumente p/ mais rotação)
 
-        const step = () => {
-            const t = Math.min(1, (Date.now() - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 3);
-            setDisplayNumber(Math.round(eased * target));
-            if (t < 1) requestAnimationFrame(step);
-            else {
-                setWinner(target);
+        const interval = setInterval(() => {
+            const random = Math.floor(Math.random() * balls.length) + 1;
+            setDisplayNumber(random);
+            counter++;
+
+            if (counter >= maxRolls) {
+                clearInterval(interval);
+
+                const finalWinner = Math.floor(Math.random() * balls.length) + 1;
+                setDisplayNumber(finalWinner);
+                setWinner(finalWinner);
                 setRolling(false);
+
                 launchConfetti();
             }
-        };
-        requestAnimationFrame(step);
+        }, 15); // velocidade da rolagem (quanto menor, mais rápido)
     };
+
 
     // ------------------------------
     // Clique em uma bolinha

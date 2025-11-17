@@ -1,7 +1,36 @@
 import { Card, Typography, Button, Divider, Stack, Box } from "@mui/material";
 import CasinoIcon from "@mui/icons-material/Casino";
+import { useEffect, useState } from "react";
 
 export default function WinnerCard({ displayNumber, winner, rolling, onDraw, onReset }) {
+
+    const [participante, setParticipante] = useState(null);
+    const [loadingParticipante, setLoadingParticipante] = useState(false);
+
+    useEffect(() => {
+        if (winner !== null) {
+            setLoadingParticipante(true);
+
+            fetch(`https://localhost:7014/chaRifa/sorteio/numero/${winner}`)
+                .then(async (res) => {
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return data;
+                })
+                .then((data) => {
+                    setParticipante(data?.participante || null);
+                })
+                .catch(() => {
+                    setParticipante(null);
+                })
+                .finally(() => {
+                    setLoadingParticipante(false);
+                });
+        } else {
+            setParticipante(null);
+        }
+    }, [winner]);
+
     return (
         <Card sx={{ p: 3, borderRadius: 3, boxShadow: 6, textAlign: "center" }}>
             <Typography variant="h6" sx={{ fontFamily: "Georgia, serif", mb: 1 }}>
@@ -18,7 +47,8 @@ export default function WinnerCard({ displayNumber, winner, rolling, onDraw, onR
                     <Typography variant="h2" sx={{
                         fontFamily: "Courier New, monospace",
                         fontWeight: 800,
-                        transform: rolling ? "scale(1.05)" : winner !== null ? "scale(1.15)" : "scale(1)",
+                        transform: rolling ? "scale(1.05)" :
+                            winner !== null ? "scale(1.15)" : "scale(1)",
                         transition: "transform 0.4s"
                     }}>
                         {displayNumber}
@@ -31,9 +61,21 @@ export default function WinnerCard({ displayNumber, winner, rolling, onDraw, onR
                     <Typography variant="h5" sx={{ fontFamily: "Georgia, serif" }}>
                         Ganhador: número {winner}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Parabéns! 🎉
-                    </Typography>
+
+                    {loadingParticipante ? (
+                        <Typography variant="body2" color="text.secondary">
+                            Verificando participante...
+                        </Typography>
+                    ) : participante ? (
+                        <Typography variant="body2" color="text.secondary">
+                            Parabéns {participante.nome}! 🎉
+                        </Typography>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary">
+                            Nenhum participante escolheu esse número.
+                        </Typography>
+                    )}
+
                 </Box>
             ) : (
                 <Typography variant="body2" color="text.secondary">
