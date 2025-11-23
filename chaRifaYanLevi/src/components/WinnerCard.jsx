@@ -11,7 +11,7 @@ export default function WinnerCard({ displayNumber, winner, rolling, onDraw, onR
         if (winner !== null) {
             setLoadingParticipante(true);
 
-            fetch(`https://localhost:7014/chaRifa/sorteio/numero/${winner}`)
+            fetch(`${import.meta.env.VITE_API_URL}/chaRifa/sorteio/numero/${winner}`)
                 .then(async (res) => {
                     if (!res.ok) return null;
                     const data = await res.json();

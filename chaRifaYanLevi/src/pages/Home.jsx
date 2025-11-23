@@ -19,7 +19,7 @@ export default function Home() {
     // Função para buscar bolas
     const fetchBalls = async () => {
         try {
-            const response = await fetch("https://localhost:7014/chaRifa/sorteio");
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/chaRifa/sorteio`);
             if (!response.ok) throw new Error("Erro ao buscar dados da rifa");
             const data = await response.json();
             setBalls(data);
@@ -88,7 +88,7 @@ export default function Home() {
         setOpenModal(true);
         setLoadingParticipants(true);
         try {
-            const res = await fetch("https://localhost:7014/chaRifa/participante");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/chaRifa/participante`);
             const data = await res.json();
             setParticipants(data);
         } catch (err) {
@@ -104,7 +104,7 @@ export default function Home() {
     const handleSelectParticipant = async (participanteId) => {
         if (!selectedNumber) return;
         try {
-            const res = await fetch("https://localhost:7014/chaRifa/sorteio", {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/chaRifa/sorteio`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

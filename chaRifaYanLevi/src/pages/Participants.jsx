@@ -23,7 +23,7 @@ export default function Participants() {
     const [loading, setLoading] = useState(false);
     const [loadingList, setLoadingList] = useState(false);
 
-    const API_BASE = "https://localhost:7014/chaRifa/participante";
+    const API_BASE = `${import.meta.env.VITE_API_URL}/chaRifa/participante`;
 
     // 🔹 Buscar participantes cadastrados
     const fetchParticipants = async () => {
